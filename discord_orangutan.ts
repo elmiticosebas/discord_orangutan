@@ -38,35 +38,36 @@ interface IReactionAdd {
     channelId: string;
     messageId: string;
     messageAuthorId: string;
-    userId: "195136840355807232";
+    userId: string;
     emoji: ReactionEmoji;
 }
 
 interface IVoiceChannelEffectSendEvent {
     type: string;
-    emoji?: ReactionEmoji; // Just in case...
+    emoji?: ReactionEmoji;
     channelId: string;
     userId: string;
     animationType: number;
     animationId: number;
 }
 
-const MOYAI = "🦧";
-const MOYAI_URL =
+// Orangutan constants
+const ORANGUTAN = "🦧";
+const ORANGUTAN_URL =
     "https://github.com/elmiticosebas/discord_orangutan/raw/refs/heads/main/monke.mp3";
-const MOYAI_URL_HD =
+const ORANGUTAN_URL_HD =
     "https://github.com/elmiticosebas/discord_orangutan/raw/refs/heads/main/monkewav.wav";
 
 const settings = definePluginSettings({
     volume: {
-        description: "Volume of the 🦧🦧🦧",
+        description: "Volume of the 🦧",
         type: OptionType.SLIDER,
         markers: makeRange(0, 1, 0.1),
         default: 0.5,
         stickToMarkers: false
     },
     quality: {
-        description: "Quality of the 🦧🦧🦧",
+        description: "Quality of the 🦧",
         type: OptionType.SELECT,
         options: [
             { label: "Normal", value: "Normal", default: true },
@@ -93,7 +94,7 @@ const settings = definePluginSettings({
 export default definePlugin({
     name: "Orangutan",
     authors: [Devs.Megu, Devs.Nuckyz],
-    description: "🦧🦧🦧🦧🦧🦧🦧🦧🦧🦧🦧🦧🦧🦧🦧🦧",
+    description: "🦧 plugin that plays monke sounds 🦧",
     settings,
 
     flux: {
@@ -105,9 +106,9 @@ export default definePlugin({
             if (!message.content) return;
             if (channelId !== SelectedChannelStore.getChannelId()) return;
 
-            const moyaiCount = getMoyaiCount(message.content);
+            const orangutanCount = getOrangutanCount(message.content);
 
-            for (let i = 0; i < moyaiCount; i++) {
+            for (let i = 0; i < orangutanCount; i++) {
                 boom();
                 await sleep(300);
             }
@@ -120,7 +121,7 @@ export default definePlugin({
             if (channelId !== SelectedChannelStore.getChannelId()) return;
 
             const name = emoji.name.toLowerCase();
-            if (name !== MOYAI && !name.includes("moyai") && !name.includes("moai")) return;
+            if (name !== ORANGUTAN && !name.includes("orangutan") && !name.includes("monke")) return;
 
             boom();
         },
@@ -128,7 +129,7 @@ export default definePlugin({
         VOICE_CHANNEL_EFFECT_SEND({ emoji }: IVoiceChannelEffectSendEvent) {
             if (!emoji?.name) return;
             const name = emoji.name.toLowerCase();
-            if (name !== MOYAI && !name.includes("moyai") && !name.includes("moai")) return;
+            if (name !== ORANGUTAN && !name.includes("orangutan") && !name.includes("monke")) return;
 
             boom();
         }
@@ -155,11 +156,12 @@ function countMatches(sourceString: string, pattern: RegExp) {
     return i;
 }
 
-const customMoyaiRe = /<a?:\w*moy?ai\w*:\d{17,20}>/gi;
+// Detect custom orangutan/monke emojis like <:orangutan:1234567890>
+const customOrangutanRe = /<a?:\w*(orangutan|monke)\w*:\d{17,20}>/gi;
 
-function getMoyaiCount(message: string) {
-    const count = countOccurrences(message, MOYAI)
-        + countMatches(message, customMoyaiRe);
+function getOrangutanCount(message: string) {
+    const count = countOccurrences(message, ORANGUTAN)
+        + countMatches(message, customOrangutanRe);
 
     return Math.min(count, 10);
 }
@@ -169,8 +171,8 @@ function boom() {
     const audioElement = document.createElement("audio");
 
     audioElement.src = settings.store.quality === "HD"
-        ? MOYAI_URL_HD
-        : MOYAI_URL;
+        ? ORANGUTAN_URL_HD
+        : ORANGUTAN_URL;
 
     audioElement.volume = settings.store.volume;
     audioElement.play();
